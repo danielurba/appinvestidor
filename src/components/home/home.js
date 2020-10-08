@@ -1,27 +1,78 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Button, Text, View, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import { useNavigation } from '@react-navigation/native'
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
-export default function Home({ navigation }) {
+class Home extends Component {
 
-    function navigateToRegist() {
-        navigation.navigate('Register')
+    constNavigation = null
+    
+    async componentDidMount() {
+        const user = await AsyncStorage.getItem('@UserApi:user')
+        if(user) {
+            this.constNavigation.navigate('Playgame')
+        }
     }
 
-    function navigateToLogin() {
-        navigation.navigate('Login')
-    }
-    return (
-        <View style={styles.home}>
-            <Button title="Login" onPress={navigateToLogin} />
-            <Button title="Register" onPress={navigateToRegist}/>
-        </View>
-    )
+    render() {
+        const { navigation } = this.props
+
+        this.constNavigation = navigation
+
+        function navigateToRegist() {
+            navigation.navigate('Register')
+        }
+
+        function navigateToLogin() {
+            navigation.navigate('Login')
+        }
+        return (
+            <View style={styles.home}>
+                <View>
+                    <TouchableOpacity style={styles.button} onPress={navigateToLogin}>
+                        <Text style={styles.textButton}>Login</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={navigateToRegist}>
+                        <Text style={styles.textButton}>Register</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        )
+    } 
 }
+
+export default function(props) {
+    const navigation = useNavigation();
+      
+    return <Home {...props} navigation={navigation} />;
+  }
 
 const styles = StyleSheet.create({
     home: {
-        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        height: 500
+    },
+    button: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 100,
+        marginBottom: 30,
+        borderRadius: 8,
+        height: 40,
+        backgroundColor: '#4da6ff',
+    },
+    textButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: 16,
+        color: '#fff'
+    },
+    text: {
+        width: 100,
+        color: '#000',
+        backgroundColor: '#333'
     }
+
 })
