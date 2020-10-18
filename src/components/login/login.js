@@ -1,26 +1,24 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, Button } from 'react-native'
+import { StyleSheet, Text, View, Button, Alert } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-community/async-storage';
+import RNRestart from 'react-native-restart' 
 
 import api from '../../config/api'
 
 class Login extends Component {
 
-    constNavigation = null
-
     state = {
         response: {
-            user: null,
+            email: null,
             password: null
-        },
-        userLog: null,
-        ok: null,
+        }
     }
 
-    setUser = (text) => {
+    setEmail = (text) => {
         const response = { ...this.state.response}
-        response.user = text
+        response.email = text
         this.setState({ response })
     }
 
@@ -32,18 +30,30 @@ class Login extends Component {
 
     toLogin = async () => {
         const response = await api.post('/login', this.state.response)
-        console.log(response)
+        if(response.data.msg) {
+            Alert.alert(response.data.msg)
+        }
+        if(response.ok) {
+            if(response.data.idArray) {
+                await AsyncStorage.multiSet([
+                    ['@UserApi:idArray', JSON.stringify(response.data.idArray)]
+                ])
+            }
+            await AsyncStorage.multiSet([
+                ['@UserApi:user', response.data.user],
+                ['@UserApi:playday', JSON.stringify(response.data.playday)],
+                ['@UserApi:money', response.data.money],
+                ['@UserApi:email', response.data.email]
+            ])
+            RNRestart.Restart()
+        }
     }
 
     render() {
-
-        const { navigation }  = this.props
-        this.constNavigation = navigation
-
         return (
             <View style={styles.form}>
                 <View>
-                    <TextInput style={styles.inputs} placeholder="Nome Usuário..." onChangeText={this.setUser}/>
+                    <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail}/>
                     <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword}/>
                     <Button title="Entrar" onPress={this.toLogin}/>
                 </View>

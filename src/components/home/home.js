@@ -1,24 +1,12 @@
 import React, { Component } from 'react';
 import { Button, Text, View, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import { useNavigation } from '@react-navigation/native'
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 
 class Home extends Component {
 
-    constNavigation = null
-    
-    async componentDidMount() {
-        const user = await AsyncStorage.getItem('@UserApi:user')
-        if(user) {
-            this.constNavigation.navigate('Playgame')
-        }
-    }
-
     render() {
         const { navigation } = this.props
-
-        this.constNavigation = navigation
 
         function navigateToRegist() {
             navigation.navigate('Register')
@@ -27,6 +15,7 @@ class Home extends Component {
         function navigateToLogin() {
             navigation.navigate('Login')
         }
+        
         return (
             <View style={styles.home}>
                 <View>

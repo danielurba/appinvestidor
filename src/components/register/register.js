@@ -3,6 +3,7 @@ import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-community/async-storage';
 import { TextInput } from 'react-native-gesture-handler';
+import RNRestart from 'react-native-restart' 
 
 import api from '../../config/api'
 
@@ -13,9 +14,7 @@ class Register extends Component {
             user: null,
             email: null,
             password: null
-        },
-        userLog: null,
-        ok: null,
+        }
     }
 
     setUser = (text) => {
@@ -36,35 +35,31 @@ class Register extends Component {
         this.setState({ response })
     }
 
-    toRegister = async (navigation) => {
+    toRegister = async () => {
         const response = await api.post('/create', this.state.response )
-        if(response.data) {
-            Alert.alert(response.data)
+        if(response.data.msg) {
+            Alert.alert(response.data.msg)
         }
-        this.setState({ userLog: this.state.response.user, ok: response.ok})
         if(response.ok) {
             await AsyncStorage.multiSet([
-                ['@UserApi:user', this.state.response.user]
+                ['@UserApi:user', this.state.response.user],
+                ['@UserApi:playday', JSON.stringify(response.data.playday)],
+                ['@UserApi:money', response.data.money],
+                ['@UserApi:email', response.data.email]
             ])
-            navigation.navigate('Playgame')
+            RNRestart.Restart()
         }
+        console.log(response)
     }
 
     render() {
-        const { navigation } = this.props
-
-        const toRedirectRegister = () => {
-            this.toRegister(navigation)
-        }
-
-
         return (
             <View style={styles.form}>
                 <View>
                     <TextInput style={styles.inputs} placeholder="Nome Usuário..." onChangeText={this.setUser}/>
                     <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail}/>
                     <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword}/>
-                    <Button title="Registrar-se" onPress={toRedirectRegister} />
+                    <Button title="Registrar-se" onPress={this.toRegister} />
                 </View>
             </View>
         )

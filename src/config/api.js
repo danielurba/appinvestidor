@@ -1,7 +1,7 @@
 import { create } from 'apisauce';
 
 const api = create({
-    baseURL: 'http://10.0.0.102:3003'
+    baseURL: 'http://192.168.0.13:3003'
 })
 
 export default api
