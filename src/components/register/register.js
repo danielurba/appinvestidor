@@ -3,9 +3,9 @@ import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-community/async-storage';
 import { TextInput } from 'react-native-gesture-handler';
-import RNRestart from 'react-native-restart' 
+import RNRestart from 'react-native-restart'
 
-import api from '../../config/api'
+import Parse from '../../config/api'
 
 class Register extends Component {
 
@@ -15,6 +15,11 @@ class Register extends Component {
             email: null,
             password: null
         }
+    }
+
+    clearStorage = async () => {
+        await AsyncStorage.clear()
+        // RNRestart.Restart()
     }
 
     setUser = (text) => {
@@ -36,20 +41,40 @@ class Register extends Component {
     }
 
     toRegister = async () => {
-        const response = await api.post('/create', this.state.response )
-        if(response.data.msg) {
-            Alert.alert(response.data.msg)
+        const user = new Parse.User()
+
+        user.set('username', this.state.response.user);
+        if(!this.state.response.email) {
+            return Alert.alert('Usuário/Email/Senha vazio!')
         }
-        if(response.ok) {
-            await AsyncStorage.multiSet([
-                ['@UserApi:user', this.state.response.user],
-                ['@UserApi:playday', JSON.stringify(response.data.playday)],
-                ['@UserApi:money', response.data.money],
-                ['@UserApi:email', response.data.email]
-            ])
-            RNRestart.Restart()
-        }
-        console.log(response)
+        user.set('email', this.state.response.email);
+        user.set('password', this.state.response.password);
+        user.signUp().then(
+            async (result) => {
+                await AsyncStorage.multiSet([
+                        ['@UserApi:idUser', result.id],
+                        ['@UserApi:user', this.state.response.user],
+                        ['@UserApi:playday', JSON.stringify(true)],
+                        ['@UserApi:money', '100000'],
+                        ['@UserApi:email', this.state.response.email]
+                    ])
+                    RNRestart.Restart()
+            },
+            (error) => {
+                if(error.code === 100) {
+                    Alert.alert('Sem conexão com a internet !!')
+                }
+                if(error.code === 202 || error.code === 203) {
+                    Alert.alert('Email/Usuário já existem !!')
+                }
+                if(error.code < 0) {
+                    Alert.alert('Usuário/Email/Senha vazio !')
+                }
+                if(error.code === 125) {
+                    Alert.alert('Endereço de email inválido !')
+                }
+            }
+            );
     }
 
     render() {
@@ -60,6 +85,7 @@ class Register extends Component {
                     <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail}/>
                     <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword}/>
                     <Button title="Registrar-se" onPress={this.toRegister} />
+                    <Button title="Clear" onPress={this.clearStorage} />
                 </View>
             </View>
         )

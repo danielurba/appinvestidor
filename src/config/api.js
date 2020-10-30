@@ -1,7 +1,12 @@
-import { create } from 'apisauce';
+import AsyncStorage from '@react-native-community/async-storage';
 
-const api = create({
-    baseURL: 'http://192.168.0.13:3003'
-})
+const Parse = require('parse/react-native')
 
-export default api
+Parse.setAsyncStorage(AsyncStorage);
+Parse.serverURL = 'https://parseapi.back4app.com'; // This is your Server URL
+Parse.initialize(
+  'kzRYvBGL6p6Ec7QJ2S4tqvrm52Mogkffwf56Rd4t', // This is your Application ID
+  'bxPUHKenz6NFCGBmHxbhtDb4Z07vPWrA1RaDt2ec' // This is your Javascript key
+);
+
+export default Parse

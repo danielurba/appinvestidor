@@ -1,22 +1,44 @@
 import React, { Component } from 'react'
 import AsyncStorage from '@react-native-community/async-storage';
-import { createStackNavigator } from '@react-navigation/stack';
+import Ionicons from 'react-native-ionicons' 
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator()
 
-import { View, Text, StyleSheet, Alert } from 'react-native'
-import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
-import RNRestart from 'react-native-restart'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native'
 
 import api from '../../config/api'
+import Ranking from '../ranking/ranking'
+import Configuration from '../configuracao/configuracao'
 
 export default class Playgame extends Component {
 
     render() {
         return (
-            <Stack.Navigator initialRouteName="Game" screenOptions={{ headerStyle: { backgroundColor: '#248f24' }, headerTintColor: '#fff' }}>
-                <Stack.Screen name="Game" component={Game} options={{ headerLeft: null }} />
-            </Stack.Navigator>
+            <Tab.Navigator initialRouteName="Game" screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+        
+                    if (route.name === 'Game') {
+                      iconName = focused
+                        ? 'ios-home'
+                        : 'ios-home';
+                    } else if (route.name === 'Ranking') {
+                      iconName = focused ? 'ios-trophy' : 'ios-trophy';
+                    } else if (route.name === 'Configuration') {
+                        iconName = focused ? 'ios-list-box' : 'ios-list';
+                    }
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                  },
+                })}
+                tabBarOptions={{
+                  activeTintColor: 'green',
+                  inactiveTintColor: 'black',
+            }}>
+                    <Tab.Screen name="Game" component={Game} />
+                    <Tab.Screen name="Ranking" component={Ranking} />
+                    <Tab.Screen name="Configuration" component={Configuration} />
+            </Tab.Navigator>
         )
     }
 }
@@ -33,8 +55,10 @@ class Game extends Component {
         buttonOnOff: false,
         idArrayquest: [],
         idQuests: 0,
-        numberThePlay: 0
+        numberThePlay: 0,
     }
+
+    // lista com perguntas para o jogo
 
     quests = [
         "A B3 (Bolsa de Valores) vem subindo exuberantemente, chegando à 52,85% de rendimento. Deseja investir?",
@@ -49,6 +73,8 @@ class Game extends Component {
         "As preocupações com o crescimento global e o noticiário da guerra comercial entre EUA e China devem seguir no foco dos investidores, que buscam entender as tendências para a demanda por minério de ferro. A continuidade do retorno das operações da Vale (VALE3) pode colocar alguma pressão do lado da oferta enquanto o mercado acompanha potenciais estímulos, como redução dos juros por parte da China, que poderia sustentar a produção de aço. A expectativa é que o minério de ferro volte gradualmente para os níveis de 2018, em torno dos US$ 70 por tonelada. No caso dos preços de aço no Brasil, um dólar mais alto e o melhor cenário para demanda podem compensar eventual queda dos preços internacionais, avaliam, ressaltando que a Vale tem um preço atrativo e boa geração de caixa. Deseja investir na companhia?"
     ]
 
+    // Componente de inicialização da tela
+
     async componentDidMount() {
         const user = await AsyncStorage.getItem('@UserApi:user')
         const playday = await AsyncStorage.getItem('@UserApi:playday')
@@ -62,6 +88,13 @@ class Game extends Component {
             this.setState({ money: money })
         }
         this.getDateToPlay()
+        this.setArrayQuest()
+    }
+
+    // Função que verifica se a uma lista de perguntas, se tiver seta no state, se não cria uma e seta
+    // no Storage e no state, e coloca o numero de perguntas que faltam no state
+    
+    setArrayQuest = async () => {
         const listTrueShuffle = JSON.parse(await AsyncStorage.getItem('@UserApi:idArray'))
         if(listTrueShuffle) {
             this.setState({ idArrayquest: listTrueShuffle })
@@ -75,9 +108,13 @@ class Game extends Component {
         this.setState({ numberThePlay: this.state.idArrayquest.length})
     }
 
+    // Gera um numero aleratorio para as porcentagens
+
     randintNumber = (min, max) => {
         return Math.floor(Math.random() * (max - min +1) + min)
     }
+
+    // Função que se for passado um valor pega esse valor e seta no Storage e salva no backend o novo valor.
 
     setStorageFunction = async (value) => {
         if(value) {
@@ -102,11 +139,19 @@ class Game extends Component {
         }
     }
 
-    insertPorcent = (value, account) => {
+    // Pega numero aleartorio faz calculos em cima do valor da conta do jogador, seta no state, manda
+    // para o backend as informações converte para numero com . e passa informações se o usuario 
+    // ganhou dinheiro ou perdeu
+
+    insertPorcent = async (value, account) => {
         const porcentRandom = this.randintNumber(0, 30) / 100
         const valueMoney = porcentRandom * value
         let valueMoneyFinalAccount = account + (valueMoney + value)
         valueMoneyFinalAccount = parseInt(valueMoneyFinalAccount)
+        const response = await api.post()
+        if(response.problem === "NETWORK_ERROR") {
+            return Alert.alert('Sem conexão com a internet !!')
+        }
         this.setState({ moneyInteger: valueMoneyFinalAccount})
         this.setStorageFunction(valueMoneyFinalAccount)
         valueMoneyFinalAccount = valueMoneyFinalAccount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -121,6 +166,9 @@ class Game extends Component {
         this.setButtonQuest()
     }
 
+    // pega o valor do state transforma em numero calculavel, e chama a função a cima com valor da
+    // porcentagem passada pelo usuario.
+
     extractionPorcent = () => {
         let money = this.state.money
         money = money.replace(/[^\d]+/g,'')
@@ -131,6 +179,8 @@ class Game extends Component {
         porcentAccountFinal = parseInt(porcentAccountFinal)
         this.insertPorcent(porcentAccount, porcentAccountFinal)
     }
+
+    // embaralha um array para perguntas aleartorias a cada dia jogado.
 
     shuffle(array) {
         let m = array.length, t, i;
@@ -143,14 +193,26 @@ class Game extends Component {
         return array;
       }
     
-      verificDateToPlay = (dateBackend) => {
+    // retorna um array com o dia que o jogador ainda tem para jogar novamente, e outro itens que e
+    // as horas e minutos que o jogador precisa esperar para jogar
+    
+    verificDateToPlay = (dateBackend) => {
         const nowDateDay = new Date(this.setDate())
         const dateLastPlay = new Date(dateBackend)
-        const diferenca = Math.abs(nowDateDay.getTime() - dateLastPlay.getTime())
+        const diffMs = nowDateDay - dateLastPlay
+        const diffHrs = Math.floor((diffMs % 86400000) / 3600000);
+        const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+        const diff = (23 - diffHrs) + 'h ' + (60 - diffMins) + 'm';
+        const diferenca = Math.abs(dateLastPlay.getTime() - nowDateDay.getTime())
         const days = Math.ceil(diferenca / (1000 * 3600 * 24))
-        return days
+        const valor = new Array()
+        valor[0] = days
+        valor[1] = diff
+        return valor
     }
     
+    // função que manda para backend a hora que o jogador terminou as jogadas diarias.
+
     setDateBackend = () => {
         const infouser = {
             email: this.state.email,
@@ -159,38 +221,70 @@ class Game extends Component {
         api.post('/savedacc', infouser)
     }
 
+    // Pega no backend o horario que o jogador terminou sua ultima jogada, faz verificação se o jogador
+    // pode jogar ou não, se pode jogar entao cria uma nova lista, seta uma lista no backend caso o
+    // jogador precise deslogar e logar novamente, ou mostra quantas horas o jogador ainda tem que esperar.
+
     getDateToPlay = async () => {
-        const infouser = {
-            email: this.state.email
+        if(!this.state.playday) {
+            const infouser = {
+                email: this.state.email
+            }
+            const response = await api.post('/getdate', infouser)
+            if(response.data.date) {
+                const days = this.verificDateToPlay(response.data.date)
+                // console.log(days[1])
+                if(days[0] > 1) {
+                    await AsyncStorage.removeItem('@UserApi:idArray')
+                    this.setArrayQuest()
+                    this.setState({ playday: true })
+                    this.setStorageFunction()
+                } else if(days[0] <= 1) {
+                    Alert.alert('Você ainda tem ' + days[1] + ' para jogar')
+                }
+            }
         }
-        const response = await api.post('/getdate', infouser)
-        console.log(this.setDate())
-        // console.log(this.verificDateToPlay(response.data.date))
     }
     
+    // Pega a data atual e transforma em toISO
+
     setDate = () => {
         const now = new Date()
-        const nowYear = now.getFullYear()
-        const nowMonth = now.getMonth() +1
-        const nowDay = now.getDate()
-        const nowHour = now.getHours()
-        const nowMinutes = now.getMinutes()
+        const nowYear = this.addzero(now.getFullYear())
+        const nowMonth = this.addzero(now.getMonth() +1)
+        const nowDay = this.addzero(now.getDate())
+        const nowHour = this.addzero(now.getHours())
+        const nowMinutes = this.addzero(now.getMinutes())
         const nowDate = nowYear + '-' + nowMonth + '-' + nowDay + 'T' + nowHour + ':' + nowMinutes
         const dateAtual = new Date(nowDate)
-        console.log(dateAtual)
-        return JSON.stringify(dateAtual)
+        return dateAtual.toISOString()
     }
 
+    // adiciona um "0" para minutos/horas sem zero a esquerda
+
+    addzero = (i) => {
+        if(i < 10) {
+            i = "0" + i
+        }
+        return i
+    }
+
+    // função que remove um indice da lista de questões, seta nova lista no Storage,e seta no backend
+    // e diminuiu as perguntas do usuario, verifica se o usuario perdeu dinheiro ou ganhou nos investimentos.
+
     nextQuest = async (direction) => {
+        const response = await api.post()
+        if(response.problem === "NETWORK_ERROR") {
+            return Alert.alert('Sem conexão com a internet !!')
+        }
         if(this.state.idArrayquest.length === 1) {
             this.setDateBackend()
             this.setState({ playday: false })
         }
         if(this.state.idArrayquest.length === 0) {
-            this.setDateBackend()
             return Alert.alert('Vocẽ não tem mais perguntas hoje, volte amanhã !!')
         }
-        const removeQuests = this.state.idArrayquest.splice(0, 1)
+        this.state.idArrayquest.splice(0, 1)
         await AsyncStorage.multiSet([
             ['@UserApi:idArray', JSON.stringify(this.state.idArrayquest)]
         ])
@@ -213,10 +307,7 @@ class Game extends Component {
         }
     }
 
-    clearStorage = async () => {
-        await AsyncStorage.clear()
-        RNRestart.Restart()
-    }
+    // Esconde e mostra botões para usuario
 
     setButtonQuest = () => {
         if(this.state.buttonOnOff) {
@@ -226,9 +317,23 @@ class Game extends Component {
         }
     }
 
+    chooseAddPorcentage = () => {
+        if(this.state.porcentUser === 100) {
+            return
+        }
+        this.setState({ porcentUser: this.state.porcentUser +10 })
+    }
+
+    chooseDiminPorcentage = () => {
+        if(this.state.porcentUser === 0) {
+            return
+        }
+        this.setState({ porcentUser: this.state.porcentUser -10 })
+    }
+
     render() {
         return (
-            <View style={styles.home}>
+            <ScrollView style={styles.home}>
                 <View style={styles.homeInfos}>
                     {!!this.state.userLog && <Text style={styles.viewHeader}>{this.state.userLog}</Text>}
                     {!!this.state.money && <Text style={styles.viewHeader}>{this.state.money},00 R$</Text>}
@@ -237,25 +342,31 @@ class Game extends Component {
                     <Text>Você tem {this.state.numberThePlay} perguntas !!</Text>
                     <Text style={{ fontSize: 20, margin: 10 }}>{this.quests[this.state.idArrayquest[this.state.idQuests]]}</Text>
                     <View style={styles.questStyleButton}>
-                        {!!this.state.buttonOnOff && <TextInput placeholder="Porcentagem..." onChangeText={(text) => this.setState({ porcentUser: text}) }/> }
-                        {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.extractionPorcent}>
-                            <Text style={styles.textButton}>Investir</Text>
+                        <View style={styles.chooseToView}>
+                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseDiminPorcentage}>
+                                <Text style={styles.textButton}>-</Text>
                             </TouchableOpacity>}
-                        {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
-                            <Text style={styles.textButton}>Voltar</Text>
-                        </TouchableOpacity>}
-                        {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
-                            <Text style={styles.textButton}>Sim</Text>
-                        </TouchableOpacity>}
-                        {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.nextQuest}>
-                            <Text style={styles.textButton}>Não</Text>
-                        </TouchableOpacity>}
-                        <TouchableOpacity style={styles.button} onPress={this.clearStorage}>
-                            <Text style={styles.textButton}>Clear</Text>
-                        </TouchableOpacity>
+                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.extractionPorcent}>
+                                <Text style={styles.textButton}>{this.state.porcentUser}%</Text>
+                            </TouchableOpacity>}
+                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseAddPorcentage}>
+                                <Text style={styles.textButton}>+</Text>
+                            </TouchableOpacity>}
+                        </View>
+                        <View style={styles.ButtonToChoose}>
+                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
+                                <Text style={styles.textButton}>Voltar</Text>
+                            </TouchableOpacity>}
+                            {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
+                                <Text style={styles.textButton}>Sim</Text>
+                            </TouchableOpacity>}
+                            {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.nextQuest}>
+                                <Text style={styles.textButton}>Não</Text>
+                            </TouchableOpacity>}
+                        </View>
                     </View>
                 </View>
-            </View>
+            </ScrollView>
         )
     }
 }
@@ -264,7 +375,7 @@ const styles = StyleSheet.create({
     home: {
         // justifyContent: 'center',
         // alignItems: 'center',
-        height: 400
+        height: '100%'
     },
     homeInfos: {
         width: '100%',
@@ -285,12 +396,16 @@ const styles = StyleSheet.create({
     },
     questStyle: {
         width: '100%',
-        height: 400,
+        // height: 400,
         justifyContent: 'center',
         alignItems: 'center'
     },
     questStyleButton: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     button: {
         justifyContent: 'center',
@@ -308,4 +423,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#fff'
     },
+    chooseToView: {
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'center'
+    },
+    ButtonToChoose: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center'
+    }
 })
