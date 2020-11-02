@@ -5,8 +5,6 @@ import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-community/async-storage';
 import RNRestart from 'react-native-restart'
 
-// const { AsyncStorage } = require('react-native');
-
 import Parse from '../../config/api'
 
 class Login extends Component {
@@ -32,45 +30,54 @@ class Login extends Component {
 
     toLogin = async () => {
         Parse.User.logIn(this.state.response.user, this.state.response.password).then((user) => {
-            const User = new Parse.User();
-            const query = new Parse.Query(User);
-            query.get(user.id).then((user) => {
-                console.log(user);
-            }, (error) => {
-                console.error(error);
-            });
+            let Person = Parse.Object.extend("User");
+            let query = new Parse.Query(Person);
+
+            query.get(user.id)
+                .then( async (person) => {
+                    const name = person.get("username");
+                    const playday = person.get("playday")
+                    const money = person.get("money");
+                    const email = person.get("email")
+                    const idArray = person.get("idArray")
+                    if (idArray) {
+                        await AsyncStorage.multiSet([
+                            ['@UserApi:idArray', JSON.stringify(idArray)]
+                        ])
+                    }
+                    if(idArray === undefined) {
+                        await AsyncStorage.multiSet([
+                            ['@UserApi:idArray', JSON.stringify(null)]
+                        ])
+                    }
+                    await AsyncStorage.multiSet([
+                        ['@UserApi:idUser', person.id],
+                        ['@UserApi:user', name],
+                        ['@UserApi:playday', JSON.stringify(playday)],
+                        ['@UserApi:money', money],
+                        ['@UserApi:email', email]
+                    ])
+                    RNRestart.Restart()
+                }, (error) => {
+                    alert(error.message);
+                });
         }).catch(error => {
+            if (error.code === 100) {
+                Alert.alert('Sem conexão com a internet !!')
+            }
             if (error.code === 200) {
                 Alert.alert('Usuário/Senha vazios !')
             }
             if (error.code === 201) {
                 Alert.alert('Senha está vazia !')
             }
+            if (error.code < 0) {
+                Alert.alert('Usuário/Senha vazios !')
+            }
             if (error.code === 101) {
                 Alert.alert('Usuário e senha inválidos !')
             }
         })
-        // const response = await api.post('/login', this.state.response)
-        // if(response.problem === "NETWORK_ERROR") {
-        //     return Alert.alert('Sem conexão com a internet !!')
-        // }
-        // if(response.ok) {
-        //     if(response.data.idArray) {
-        //         await AsyncStorage.multiSet([
-        //             ['@UserApi:idArray', JSON.stringify(response.data.idArray)]
-        //         ])
-        //     }
-        //     await AsyncStorage.multiSet([
-        //         ['@UserApi:user', response.data.user],
-        //         ['@UserApi:playday', JSON.stringify(response.data.playday)],
-        //         ['@UserApi:money', response.data.money],
-        //         ['@UserApi:email', response.data.email]
-        //     ])
-        //     RNRestart.Restart()
-        // }
-        // if(response.status === 400) {
-        //     Alert.alert(response.data.msg)
-        // }
     }
 
     render() {

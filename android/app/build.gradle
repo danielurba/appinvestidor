@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.grandeinvest"
+        applicationId "com.Urbinvestiment"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

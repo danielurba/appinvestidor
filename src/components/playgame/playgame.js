@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import AsyncStorage from '@react-native-community/async-storage';
-import Ionicons from 'react-native-ionicons' 
+import Ionicons from 'react-native-ionicons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator()
 
 import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native'
 
-import api from '../../config/api'
+import Parse from '../../config/api'
 import Ranking from '../ranking/ranking'
 import Configuration from '../configuracao/configuracao'
 
@@ -18,26 +18,26 @@ export default class Playgame extends Component {
             <Tab.Navigator initialRouteName="Game" screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
-        
+
                     if (route.name === 'Game') {
-                      iconName = focused
-                        ? 'ios-home'
-                        : 'ios-home';
+                        iconName = focused
+                            ? 'ios-home'
+                            : 'ios-home';
                     } else if (route.name === 'Ranking') {
-                      iconName = focused ? 'ios-trophy' : 'ios-trophy';
+                        iconName = focused ? 'ios-trophy' : 'ios-trophy';
                     } else if (route.name === 'Configuration') {
                         iconName = focused ? 'ios-list-box' : 'ios-list';
                     }
                     return <Ionicons name={iconName} size={size} color={color} />;
-                  },
-                })}
+                },
+            })}
                 tabBarOptions={{
-                  activeTintColor: 'green',
-                  inactiveTintColor: 'black',
-            }}>
-                    <Tab.Screen name="Game" component={Game} />
-                    <Tab.Screen name="Ranking" component={Ranking} />
-                    <Tab.Screen name="Configuration" component={Configuration} />
+                    activeTintColor: 'green',
+                    inactiveTintColor: 'black',
+                }}>
+                <Tab.Screen name="Game" component={Game} />
+                <Tab.Screen name="Ranking" component={Ranking} />
+                <Tab.Screen name="Configuration" component={Configuration} />
             </Tab.Navigator>
         )
     }
@@ -56,6 +56,7 @@ class Game extends Component {
         idArrayquest: [],
         idQuests: 0,
         numberThePlay: 0,
+        idUserName: null
     }
 
     // lista com perguntas para o jogo
@@ -79,63 +80,236 @@ class Game extends Component {
         const user = await AsyncStorage.getItem('@UserApi:user')
         const playday = await AsyncStorage.getItem('@UserApi:playday')
         const email = await AsyncStorage.getItem('@UserApi:email')
+        const idUser = await AsyncStorage.getItem('@UserApi:idUser')
         let money = await AsyncStorage.getItem('@UserApi:money')
         if (!!user && !!playday && !!money && !!email) {
             money = money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
             this.setState({ email: email })
             this.setState({ userLog: user })
-            this.setState({ playday: playday })
             this.setState({ money: money })
+            this.setState({ idUserName: idUser })
+            if (playday === 'true') {
+                this.setState({ playday: true })
+            } else if(playday === 'false'){
+                this.setState({ playday: false })
+            }
         }
         this.getDateToPlay()
         this.setArrayQuest()
     }
-
+    
     // Função que verifica se a uma lista de perguntas, se tiver seta no state, se não cria uma e seta
     // no Storage e no state, e coloca o numero de perguntas que faltam no state
     
     setArrayQuest = async () => {
-        const listTrueShuffle = JSON.parse(await AsyncStorage.getItem('@UserApi:idArray'))
-        if(listTrueShuffle) {
-            this.setState({ idArrayquest: listTrueShuffle })
-        } else if(!listTrueShuffle) {
+        if(!this.state.playday) {
+            this.setState({ idArrayquest: [] })
+        } else if (this.state.playday) {
+            const listTrueShuffle = JSON.parse(await AsyncStorage.getItem('@UserApi:idArray'))
             const listShuffle = this.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-            await AsyncStorage.multiSet([
-                ['@UserApi:idArray', JSON.stringify(listShuffle) ]
-            ])
-            this.setState({ idArrayquest: listShuffle })
+            if(listTrueShuffle === null) {
+                await AsyncStorage.multiSet([
+                    ['@UserApi:idArray', JSON.stringify(listShuffle)]
+                ])
+                this.setState({ idArrayquest: listShuffle })
+                this.setStorageFunction()
+            } else {
+                if(listTrueShuffle.length > 0) {
+                    this.setState({ idArrayquest: listTrueShuffle })
+                } else if(listTrueShuffle.length == 0) {
+                    await AsyncStorage.multiSet([
+                        ['@UserApi:idArray', JSON.stringify(listShuffle)]
+                    ])
+                    this.setState({ idArrayquest: listShuffle })
+                }
+            }
         }
-        this.setState({ numberThePlay: this.state.idArrayquest.length})
+        this.setState({ numberThePlay: this.state.idArrayquest.length })
     }
 
     // Gera um numero aleratorio para as porcentagens
 
     randintNumber = (min, max) => {
-        return Math.floor(Math.random() * (max - min +1) + min)
+        return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+
+    selectRandintQuests = (index) => {
+        let numberResponseQuest = new Array()
+        if(index === 0) {
+            numberResponseQuest[0] = this.randintNumber(-60, 30)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-80, 80)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "A Bolsa de valores subiu"
+            } else {
+                numberResponseQuest[1] = "A Bolsa de valores desceu"
+            }
+            return numberResponseQuest
+        } else if(index === 1) {
+            numberResponseQuest[0] = this.randintNumber(-30, 60)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-30, 60)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "A Empresa Alimenticia Subiu"
+            } else {
+                numberResponseQuest[1] = "A Empresa Alimenticia Desceu"
+            }
+            return numberResponseQuest
+        } else if(index === 2) {
+            numberResponseQuest[0] = this.randintNumber(-5, 60)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-5, 60)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "A Magazine recuperou"
+            } else {
+                numberResponseQuest[1] = "A Magazine perdeu"
+            }
+            return numberResponseQuest
+        }else if(index === 3) {
+            numberResponseQuest[0] = this.randintNumber(-50, 50)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-50, 50)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "IRB Brasil ganhou"
+            } else {
+                numberResponseQuest[1] = "IRB BRasil perdeu"
+            }
+            return numberResponseQuest
+        }else if(index === 4) {
+            numberResponseQuest[0] = this.randintNumber(-20, 80)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-20, 80)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "A Aviação subiu"
+            } else {
+                numberResponseQuest[1] = "A Aviação perdeu"
+            }
+            return numberResponseQuest
+        }else if(index === 5) {
+            numberResponseQuest[0] = this.randintNumber(10, 50)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(10, 50)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "O varejo subiu"
+            } else {
+                numberResponseQuest[1] = "O varejo perdeu"
+            }
+            return numberResponseQuest
+        }else if(index === 6) {
+            numberResponseQuest[0] = this.randintNumber(-80, 80)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-80, 80)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "A imobiliaria subiu"
+            } else {
+                numberResponseQuest[1] = " A imobiliaria desceu"
+            }
+            return numberResponseQuest
+        }else if(index === 7) {
+            numberResponseQuest[0] = this.randintNumber(-5, 70)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-5, 70)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "Ecorodovias subiu"
+            } else {
+                numberResponseQuest[1] = "Ecorodovias desceu"
+            }
+            return numberResponseQuest
+        }else if(index === 8) {
+            numberResponseQuest[0] = this.randintNumber(-40, 40)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-40, 40)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "AES Tiete subiu"
+            } else {
+                numberResponseQuest[1] = "AES Tiete desceu"
+            }
+            return numberResponseQuest
+        }else if(index === 9) {
+            numberResponseQuest[0] =  this.randintNumber(-20, 50)
+            while(numberResponseQuest[0] == 0) {
+                numberResponseQuest[0] = this.randintNumber(-20, 50)
+                if(numberResponseQuest[0] != 0) {
+                    break
+                }
+            }
+            if(numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = "A crise mundial fez subir"
+            } else {
+                numberResponseQuest[1] = "A crise mundial fez cair"
+            }
+            return numberResponseQuest
+        }
     }
 
     // Função que se for passado um valor pega esse valor e seta no Storage e salva no backend o novo valor.
 
     setStorageFunction = async (value) => {
-        if(value) {
+        if (value) {
             await AsyncStorage.multiSet([
                 ['@UserApi:money', JSON.stringify(value)]
             ])
-            const infouser = {
-                user: this.state.userLog,
-                playday: this.state.playday,
-                email: this.state.email,
-                money: value
-            }
-            api.post('/savedacc', infouser)
+            const User = new Parse.User();
+            const query = new Parse.Query(User);
+
+            query.get(this.state.idUserName).then((user) => {
+                user.set('playday', this.state.playday);
+                user.set('money', value.toString());
+                user.save().then((response) => {
+                    return
+                }).catch((error) => {
+                    console.error(error.message);
+                });
+            });
         } else {
-            const infouser = {
-                user: this.state.userLog,
-                playday: this.state.playday,
-                email: this.state.email,
-                idArray: this.state.idArrayquest
-            }
-            api.post('/savedacc', infouser)
+            const User = new Parse.User();
+            const query = new Parse.Query(User);
+
+            query.get(this.state.idUserName).then((user) => {
+                user.set('playday', this.state.playday);
+                user.set('idArray', this.state.idArrayquest);
+                user.save().then((response) => {
+                    return
+                }).catch((error) => {
+                    console.error(error.message);
+                });
+            });
         }
     }
 
@@ -144,25 +318,16 @@ class Game extends Component {
     // ganhou dinheiro ou perdeu
 
     insertPorcent = async (value, account) => {
-        const porcentRandom = this.randintNumber(0, 30) / 100
-        const valueMoney = porcentRandom * value
+        let porcentRandom = this.selectRandintQuests(this.state.idArrayquest[this.state.idQuests])
+        porcentRandom[0] = porcentRandom[0] / 100
+        const valueMoney = porcentRandom[0] * value
         let valueMoneyFinalAccount = account + (valueMoney + value)
         valueMoneyFinalAccount = parseInt(valueMoneyFinalAccount)
-        const response = await api.post()
-        if(response.problem === "NETWORK_ERROR") {
-            return Alert.alert('Sem conexão com a internet !!')
-        }
-        this.setState({ moneyInteger: valueMoneyFinalAccount})
+        this.setState({ moneyInteger: valueMoneyFinalAccount })
         this.setStorageFunction(valueMoneyFinalAccount)
         valueMoneyFinalAccount = valueMoneyFinalAccount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
         this.setState({ money: valueMoneyFinalAccount })
-        if(porcentRandom > 0) {
-            this.nextQuest(porcentRandom)
-        } else if(porcentRandom < 0) {
-            this.nextQuest(porcentRandom)
-        } else if(porcentRandom === 0) {
-            this.nextQuest(porcentRandom)
-        }
+        this.nextQuest(porcentRandom)
         this.setButtonQuest()
     }
 
@@ -171,11 +336,11 @@ class Game extends Component {
 
     extractionPorcent = () => {
         let money = this.state.money
-        money = money.replace(/[^\d]+/g,'')
+        money = money.replace(/[^\d]+/g, '')
         const porcent = this.state.porcentUser / 100
         const porcentAccount = porcent * money
         let porcentAccountFinal = money - porcentAccount
-        porcentAccountFinal =  porcentAccountFinal.toString()
+        porcentAccountFinal = porcentAccountFinal.toString()
         porcentAccountFinal = parseInt(porcentAccountFinal)
         this.insertPorcent(porcentAccount, porcentAccountFinal)
     }
@@ -185,17 +350,17 @@ class Game extends Component {
     shuffle(array) {
         let m = array.length, t, i;
         while (m) {
-          i = Math.floor(Math.random() * m--);
-          t = array[m];
-          array[m] = array[i];
-          array[i] = t;
+            i = Math.floor(Math.random() * m--);
+            t = array[m];
+            array[m] = array[i];
+            array[i] = t;
         }
         return array;
-      }
-    
+    }
+
     // retorna um array com o dia que o jogador ainda tem para jogar novamente, e outro itens que e
     // as horas e minutos que o jogador precisa esperar para jogar
-    
+
     verificDateToPlay = (dateBackend) => {
         const nowDateDay = new Date(this.setDate())
         const dateLastPlay = new Date(dateBackend)
@@ -210,60 +375,67 @@ class Game extends Component {
         valor[1] = diff
         return valor
     }
-    
+
     // função que manda para backend a hora que o jogador terminou as jogadas diarias.
 
     setDateBackend = () => {
-        const infouser = {
-            email: this.state.email,
-            date: this.setDate()
-        }
-        api.post('/savedacc', infouser)
+        const User = new Parse.User();
+        const query = new Parse.Query(User);
+
+        query.get(this.state.idUserName).then((user) => {
+            user.set('datelastplay', this.setDate());
+            user.save().then((response) => {
+                return
+            }).catch((error) => {
+                console.error(error.message);
+            });
+        });
     }
 
     // Pega no backend o horario que o jogador terminou sua ultima jogada, faz verificação se o jogador
     // pode jogar ou não, se pode jogar entao cria uma nova lista, seta uma lista no backend caso o
     // jogador precise deslogar e logar novamente, ou mostra quantas horas o jogador ainda tem que esperar.
 
-    getDateToPlay = async () => {
-        if(!this.state.playday) {
-            const infouser = {
-                email: this.state.email
-            }
-            const response = await api.post('/getdate', infouser)
-            if(response.data.date) {
-                const days = this.verificDateToPlay(response.data.date)
-                // console.log(days[1])
-                if(days[0] > 1) {
-                    await AsyncStorage.removeItem('@UserApi:idArray')
-                    this.setArrayQuest()
-                    this.setState({ playday: true })
-                    this.setStorageFunction()
-                } else if(days[0] <= 1) {
-                    Alert.alert('Você ainda tem ' + days[1] + ' para jogar')
-                }
-            }
+    getDateToPlay = () => {
+        if (!this.state.playday) {
+            const Person = Parse.Object.extend("User");
+            const query = new Parse.Query(Person);
+
+            query.get(this.state.idUserName)
+                .then(async (person) => {
+                    const idArray = person.get("datelastplay");
+                    const days = this.verificDateToPlay(idArray)
+                    if (days[0] > 1) {
+                        this.setState({ playday: true })
+                        this.setArrayQuest()
+                        this.setStorageFunction()
+                    } else if (days[0] <= 1) {
+                        Alert.alert('Você ainda tem ' + days[1] + ' para jogar')
+                    }
+                }, (error) => {
+                    alert(error.message);
+                });
         }
     }
-    
+
     // Pega a data atual e transforma em toISO
 
     setDate = () => {
         const now = new Date()
         const nowYear = this.addzero(now.getFullYear())
-        const nowMonth = this.addzero(now.getMonth() +1)
+        const nowMonth = this.addzero(now.getMonth() + 1)
         const nowDay = this.addzero(now.getDate())
         const nowHour = this.addzero(now.getHours())
         const nowMinutes = this.addzero(now.getMinutes())
         const nowDate = nowYear + '-' + nowMonth + '-' + nowDay + 'T' + nowHour + ':' + nowMinutes
         const dateAtual = new Date(nowDate)
-        return dateAtual.toISOString()
+        return dateAtual
     }
 
     // adiciona um "0" para minutos/horas sem zero a esquerda
 
     addzero = (i) => {
-        if(i < 10) {
+        if (i < 10) {
             i = "0" + i
         }
         return i
@@ -273,15 +445,18 @@ class Game extends Component {
     // e diminuiu as perguntas do usuario, verifica se o usuario perdeu dinheiro ou ganhou nos investimentos.
 
     nextQuest = async (direction) => {
-        const response = await api.post()
-        if(response.problem === "NETWORK_ERROR") {
-            return Alert.alert('Sem conexão com a internet !!')
+        if (direction[0] === undefined) {
+            const porcentRandom = this.selectRandintQuests(this.state.idArrayquest[this.state.idQuests])
+            Alert.alert('Vocẽ recusou e ' + porcentRandom[1] + porcentRandom[0] + '%')
         }
-        if(this.state.idArrayquest.length === 1) {
+        if (this.state.idArrayquest.length === 1) {
             this.setDateBackend()
             this.setState({ playday: false })
+            await AsyncStorage.multiSet([
+                ['@UserApi:playday', JSON.stringify(false)]
+            ])
         }
-        if(this.state.idArrayquest.length === 0) {
+        if (this.state.idArrayquest.length === 0) {
             return Alert.alert('Vocẽ não tem mais perguntas hoje, volte amanhã !!')
         }
         this.state.idArrayquest.splice(0, 1)
@@ -289,28 +464,21 @@ class Game extends Component {
             ['@UserApi:idArray', JSON.stringify(this.state.idArrayquest)]
         ])
         this.setStorageFunction()
-        this.setState({ numberThePlay: this.state.numberThePlay -1})
-        if(this.state.idQuests >= this.state.idArrayquest.length -1) {
-            this.setState({ idQuests: 0})
+        this.setState({ numberThePlay: this.state.numberThePlay - 1 })
+        if (this.state.idQuests >= this.state.idArrayquest.length - 1) {
+            this.setState({ idQuests: 0 })
         } else {
-            this.setState({ idQuests: 0})
+            this.setState({ idQuests: 0 })
         }
-        if(direction > 0) {
-            Alert.alert('Vocẽ recuperou ' + parseInt(direction*100) + '% das ações')
-        } else if(direction < 0) {
-            Alert.alert('Você perdeu' + parseInt(direction*100) + '% das ações')
-        } else if(direction === 0) {
-            Alert.alert('Vocẽ não ganhou nada e nem perdeu')
-        } else if(direction === undefined) {
-            const porcentRandom = this.randintNumber(0, 30)
-            Alert.alert('Vocẽ recusou e as ações subiram ' + porcentRandom +'%')
+        if(direction[0]) {
+            Alert.alert(direction[1] + parseInt(direction[0] * 100) + '% das ações')
         }
     }
 
     // Esconde e mostra botões para usuario
 
     setButtonQuest = () => {
-        if(this.state.buttonOnOff) {
+        if (this.state.buttonOnOff) {
             this.setState({ buttonOnOff: false })
         } else {
             this.setState({ buttonOnOff: true })
@@ -318,17 +486,17 @@ class Game extends Component {
     }
 
     chooseAddPorcentage = () => {
-        if(this.state.porcentUser === 100) {
+        if (this.state.porcentUser === 100) {
             return
         }
-        this.setState({ porcentUser: this.state.porcentUser +10 })
+        this.setState({ porcentUser: this.state.porcentUser + 10 })
     }
 
     chooseDiminPorcentage = () => {
-        if(this.state.porcentUser === 0) {
+        if (this.state.porcentUser === 0) {
             return
         }
-        this.setState({ porcentUser: this.state.porcentUser -10 })
+        this.setState({ porcentUser: this.state.porcentUser - 10 })
     }
 
     render() {
@@ -341,7 +509,7 @@ class Game extends Component {
                 <View style={styles.questStyle}>
                     <Text>Você tem {this.state.numberThePlay} perguntas !!</Text>
                     <Text style={{ fontSize: 20, margin: 10 }}>{this.quests[this.state.idArrayquest[this.state.idQuests]]}</Text>
-                    <View style={styles.questStyleButton}>
+                   {this.state.playday === true &&  <View style={styles.questStyleButton}>
                         <View style={styles.chooseToView}>
                             {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseDiminPorcentage}>
                                 <Text style={styles.textButton}>-</Text>
@@ -364,7 +532,7 @@ class Game extends Component {
                                 <Text style={styles.textButton}>Não</Text>
                             </TouchableOpacity>}
                         </View>
-                    </View>
+                    </View>}
                 </View>
             </ScrollView>
         )

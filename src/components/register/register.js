@@ -23,19 +23,19 @@ class Register extends Component {
     }
 
     setUser = (text) => {
-        const response = { ...this.state.response}
+        const response = { ...this.state.response }
         response.user = text
         this.setState({ response })
     }
 
     setEmail = (text) => {
-        const response = { ...this.state.response}
+        const response = { ...this.state.response }
         response.email = text
         this.setState({ response })
     }
-    
+
     setPassword = (text) => {
-        const response = { ...this.state.response}
+        const response = { ...this.state.response }
         response.password = text
         this.setState({ response })
     }
@@ -44,46 +44,61 @@ class Register extends Component {
         const user = new Parse.User()
 
         user.set('username', this.state.response.user);
-        if(!this.state.response.email) {
+        if (!this.state.response.email) {
             return Alert.alert('Usuário/Email/Senha vazio!')
         }
         user.set('email', this.state.response.email);
         user.set('password', this.state.response.password);
         user.signUp().then(
-            async (result) => {
-                await AsyncStorage.multiSet([
-                        ['@UserApi:idUser', result.id],
-                        ['@UserApi:user', this.state.response.user],
-                        ['@UserApi:playday', JSON.stringify(true)],
-                        ['@UserApi:money', '100000'],
-                        ['@UserApi:email', this.state.response.email]
-                    ])
-                    RNRestart.Restart()
+            (result) => {
+                const Person = Parse.Object.extend("User");
+                const query = new Parse.Query(Person);
+
+                query.get(result.id)
+                    .then(async (person) => {
+                        const name = person.get("username");
+                        const playday = person.get("playday")
+                        const money = person.get("money");
+                        const email = person.get("email")
+
+                        await AsyncStorage.multiSet([
+                            ['@UserApi:idUser', person.id],
+                            ['@UserApi:user', name],
+                            ['@UserApi:playday', JSON.stringify(playday)],
+                            ['@UserApi:money', money],
+                            ['@UserApi:email', email],
+                            ['@UserApi:idArray', JSON.stringify(null)]
+                        ])
+                        RNRestart.Restart()
+
+                    }, (error) => {
+                        alert(error.message);
+                    });
             },
             (error) => {
-                if(error.code === 100) {
+                if (error.code === 100) {
                     Alert.alert('Sem conexão com a internet !!')
                 }
-                if(error.code === 202 || error.code === 203) {
+                if (error.code === 202 || error.code === 203) {
                     Alert.alert('Email/Usuário já existem !!')
                 }
-                if(error.code < 0) {
+                if (error.code < 0) {
                     Alert.alert('Usuário/Email/Senha vazio !')
                 }
-                if(error.code === 125) {
+                if (error.code === 125) {
                     Alert.alert('Endereço de email inválido !')
                 }
             }
-            );
+        );
     }
 
     render() {
         return (
             <View style={styles.form}>
                 <View>
-                    <TextInput style={styles.inputs} placeholder="Nome Usuário..." onChangeText={this.setUser}/>
-                    <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail}/>
-                    <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword}/>
+                    <TextInput style={styles.inputs} placeholder="Nome Usuário..." onChangeText={this.setUser} />
+                    <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail} />
+                    <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
                     <Button title="Registrar-se" onPress={this.toRegister} />
                     <Button title="Clear" onPress={this.clearStorage} />
                 </View>
@@ -92,11 +107,11 @@ class Register extends Component {
     }
 }
 
-export default function(props) {
+export default function (props) {
     const navigation = useNavigation();
-      
+
     return <Register {...props} navigation={navigation} />;
-  }
+}
 
 const styles = StyleSheet.create({
     form: {

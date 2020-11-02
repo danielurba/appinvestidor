@@ -5,7 +5,7 @@ import RNRestart from 'react-native-restart'
 import { ConfirmDialog } from 'react-native-simple-dialogs';
 import DialogInput from 'react-native-dialog-input';
 
-import api from '../../config/api'
+import Parse from '../../config/api'
 
 export default class Configuration extends Component {
 
@@ -20,67 +20,85 @@ export default class Configuration extends Component {
         RNRestart.Restart()
     }
 
-    deleteAccount = async (password) => {
-        const email = await AsyncStorage.getItem('@UserApi:email')
-        const informs = {
-            email: email,
-            password: password
-        }
+    deleteAccount = async () => {
+        const User = new Parse.User();
+        const query = new Parse.Query(User);
 
-        const response = await api.post('/delete', informs)
-        if(response.problem === "NETWORK_ERROR") {
-            return Alert.alert('Sem conexão com a internet !!')
-        }
-        if(response.ok) {
-            this.setState({ InputVisible: false, dialogVisible: false})
-            Alert.alert("Usuário deletado com sucesso!")
-            return this.clearStorage()
-        }
-        if(response.data.msg) {
-            Alert.alert(response.data.msg)
-        }
+        const idUser = await AsyncStorage.getItem('@UserApi:idUser')
+
+        query.get(idUser).then((user) => {
+            user.destroy().then((response) => {
+                this.setState({ InputVisible: false, dialogVisible: false })
+                Alert.alert("Usuário deletado com sucesso!")
+                this.clearStorage()
+            }, (error) => {
+                console.error(error);
+            })
+        });
+        // const email = await AsyncStorage.getItem('@UserApi:email')
+        // const informs = {
+        //     email: email,
+        //     password: password
+        // }
+
+        // const response = await api.post('/delete', informs)
+        // if(response.problem === "NETWORK_ERROR") {
+        //     return Alert.alert('Sem conexão com a internet !!')
+        // }
+        // if(response.ok) {
+        //     this.setState({ InputVisible: false, dialogVisible: false})
+        //     Alert.alert("Usuário deletado com sucesso!")
+        //     return this.clearStorage()
+        // }
+        // if(response.data.msg) {
+        //     Alert.alert(response.data.msg)
+        // }
     }
 
-    resetarAccount = async (password) => {
-        const email = await AsyncStorage.getItem('@UserApi:email')
-        const informs = {
-            email: email,
-            password: password
-        }
-        const response = await api.post('/reset', informs)
-        if(response.problem === "NETWORK_ERROR") {
-            return Alert.alert('Sem conexão com a internet !!')
-        }
-        if(response.ok) {
-            this.setState({ InputVisibleReset: false, dialogVisibleReset: false})
-            await AsyncStorage.multiSet([
-                ['@UserApi:money', JSON.stringify(100000)]
-            ])
-            Alert.alert("Sua conta foi resetada com sucesso!")
-            return RNRestart.Restart()
-        }
-        if(response.data.msg) {
-            Alert.alert(response.data.msg)
-        }
+    resetarAccount = async () => {
+        const User = new Parse.User();
+        const query = new Parse.Query(User);
+
+        const idUser = await AsyncStorage.getItem('@UserApi:idUser')
+
+        query.get(idUser).then((user) => {
+            user.set('money', '100000');
+            user.save().then( async (response) => {
+                this.setState({ InputVisibleReset: false, dialogVisibleReset: false })
+                await AsyncStorage.multiSet([
+                    ['@UserApi:money', JSON.stringify(100000)]
+                ])
+                Alert.alert("Sua conta foi resetada com sucesso!")
+                RNRestart.Restart()
+            }).catch((error) => {
+                console.error(error.message);
+            });
+        })
+        // const email = await AsyncStorage.getItem('@UserApi:email')
+        // const informs = {
+        //     email: email,
+        //     password: password
+        // }
+        // const response = await api.post('/reset', informs)
+        // if (response.problem === "NETWORK_ERROR") {
+        //     return Alert.alert('Sem conexão com a internet !!')
+        // }
+        // if (response.ok) {
+        //     this.setState({ InputVisibleReset: false, dialogVisibleReset: false })
+        //     await AsyncStorage.multiSet([
+        //         ['@UserApi:money', JSON.stringify(100000)]
+        //     ])
+        //     Alert.alert("Sua conta foi resetada com sucesso!")
+        //     return RNRestart.Restart()
+        // }
+        // if (response.data.msg) {
+        //     Alert.alert(response.data.msg)
+        // }
     }
 
     render() {
         return (
             <View>
-                <DialogInput isDialogVisible={this.state.InputVisible}
-                    title={"Digite a senha para excluir!!"}
-                    message={""}
-                    hintInput={"Digite a senha..."}
-                    submitInput={(inputText) => this.deleteAccount(inputText)}
-                    closeDialog={() =>  this.setState({ InputVisible: false })}>
-                </DialogInput>
-                <DialogInput isDialogVisible={this.state.InputVisibleReset}
-                    title={"Digite a senha para resetar a conta!!"}
-                    message={""}
-                    hintInput={"Digite a senha..."}
-                    submitInput={(inputText) => this.resetarAccount(inputText)}
-                    closeDialog={() =>  this.setState({ InputVisibleReset: false })}>
-                </DialogInput>
                 <ConfirmDialog
                     title="Você deseja mesmo excluir a conta ?"
                     message="Diga SIM e Digite a senha para excluir!!"
@@ -88,11 +106,11 @@ export default class Configuration extends Component {
                     onTouchOutside={() => this.setState({ dialogVisible: false })}
                     negativeButton={{
                         title: "SIM",
-                        onPress: () => this.setState({ InputVisible: true })
+                        onPress: () => this.deleteAccount()
                     }}
                     positiveButton={{
                         title: "NÃO",
-                        onPress: () => this.setState({ dialogVisible: false})
+                        onPress: () => this.setState({ dialogVisible: false })
                     }}
                 />
                 <ConfirmDialog
@@ -102,11 +120,11 @@ export default class Configuration extends Component {
                     onTouchOutside={() => this.setState({ InputVisibleReset: false })}
                     negativeButton={{
                         title: "SIM",
-                        onPress: () => this.setState({ InputVisibleReset: true })
+                        onPress: () => this.resetarAccount()
                     }}
                     positiveButton={{
                         title: "NÃO",
-                        onPress: () => this.setState({ dialogVisibleReset: false})
+                        onPress: () => this.setState({ dialogVisibleReset: false })
                     }}
                 />
                 <TouchableOpacity style={styles.button} onPress={this.clearStorage}>
@@ -118,7 +136,7 @@ export default class Configuration extends Component {
                 <TouchableOpacity style={styles.button} onPress={() => this.setState({ dialogVisibleReset: true })}>
                     <Text style={styles.textButton}>Resetar conta</Text>
                 </TouchableOpacity>
-            </View>
+            </View >
         )
     }
 }
