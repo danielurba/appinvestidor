@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert, Button, StyleSheet, Text, View } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-community/async-storage';
 import { TextInput } from 'react-native-gesture-handler';
@@ -94,15 +94,16 @@ class Register extends Component {
 
     render() {
         return (
-            <View style={styles.form}>
-                <View>
-                    <TextInput style={styles.inputs} placeholder="Nome Usuário..." onChangeText={this.setUser} />
-                    <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail} />
-                    <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
-                    <Button title="Registrar-se" onPress={this.toRegister} />
-                    <Button title="Clear" onPress={this.clearStorage} />
+            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null }}>
+                <View style={styles.form}>
+                    <View>
+                        <TextInput style={styles.inputs} placeholder="Nome Usuário..." onChangeText={this.setUser} />
+                        <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setEmail} />
+                        <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
+                        <Button title="Registrar-se" onPress={this.toRegister} />
+                    </View>
                 </View>
-            </View>
+            </ImageBackground>
         )
     }
 }

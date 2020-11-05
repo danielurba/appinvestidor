@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, Button, Alert } from 'react-native'
+import { StyleSheet, Text, View, Button, Alert, ImageBackground } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-community/async-storage';
@@ -34,7 +34,7 @@ class Login extends Component {
             let query = new Parse.Query(Person);
 
             query.get(user.id)
-                .then( async (person) => {
+                .then(async (person) => {
                     const name = person.get("username");
                     const playday = person.get("playday")
                     const money = person.get("money");
@@ -45,7 +45,7 @@ class Login extends Component {
                             ['@UserApi:idArray', JSON.stringify(idArray)]
                         ])
                     }
-                    if(idArray === undefined) {
+                    if (idArray === undefined) {
                         await AsyncStorage.multiSet([
                             ['@UserApi:idArray', JSON.stringify(null)]
                         ])
@@ -82,13 +82,15 @@ class Login extends Component {
 
     render() {
         return (
-            <View style={styles.form}>
-                <View>
-                    <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setUser} />
-                    <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
-                    <Button title="Entrar" onPress={this.toLogin} />
+            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null }}>
+                <View style={styles.form}>
+                    <View>
+                        <TextInput style={styles.inputs} placeholder="Email..." onChangeText={this.setUser} />
+                        <TextInput style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
+                        <Button title="Entrar" onPress={this.toLogin} />
+                    </View>
                 </View>
-            </View>
+            </ImageBackground>
         )
     }
 }

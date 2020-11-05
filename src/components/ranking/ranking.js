@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Alert, ImageBackground } from 'react-native'
+import Ionicons from 'react-native-ionicons'
 
 import Parse from '../../config/api'
 
@@ -58,41 +59,46 @@ export default class Ranking extends Component {
 
     render() {
         return (
+            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null}}>
             <ScrollView>
                 <View style={styles.body}>
-                    <Text>Ranking</Text>
+                    <Text style={styles.textUser}>Ranking</Text>
                     <View style={styles.boxPosition}>
-                        <Text style={styles.textPosicion}>1 Lugar</Text>
+                        <Ionicons name="ios-trophy" size={30} color={'#ffff00'}/>
+                        <Text style={styles.textPosicion}>Top 1</Text>
                         {this.state.player1 && <Text style={styles.textUser}>{this.state.player1.user}</Text>}
                         {this.state.player1 && <Text style={styles.textUser}>{this.state.player1.money}</Text>}
                     </View>
                     <View style={styles.boxPosition}>
-                        <Text style={styles.textPosicion}>2 Lugar</Text>
+                    <Ionicons name="ios-trophy" size={30} color={'#c0c0c0'}/>
+                        <Text style={styles.textPosicion}>Top 2</Text>
                         {this.state.player2 && <Text style={styles.textUser}>{this.state.player2.user}</Text>}
                         {this.state.player2 && <Text style={styles.textUser}>{this.state.player2.money}</Text>}
                     </View>
                     <View style={styles.boxPosition}>
-                        <Text style={styles.textPosicion}>3 Lugar</Text>
+                    <Ionicons name="ios-trophy" size={30} color={'#cd7f32'}/>
+                        <Text style={styles.textPosicion}>Top 3</Text>
                         {this.state.player3 && <Text style={styles.textUser}>{this.state.player3.user}</Text>}
                         {this.state.player3 && <Text style={styles.textUser}>{this.state.player3.money}</Text>}
                     </View>
                     <View style={styles.boxPosition}>
-                        <Text style={styles.textPosicion}>4 Lugar</Text>
+                        <Text style={styles.textPosicion}>Top 4</Text>
                         {this.state.player4 && <Text style={styles.textUser}>{this.state.player4.user}</Text>}
                         {this.state.player4 && <Text style={styles.textUser}>{this.state.player4.money}</Text>}
                     </View>
                     <View style={styles.boxPosition}>
-                        <Text style={styles.textPosicion}>5 Lugar</Text>
+                        <Text style={styles.textPosicion}>Top 5</Text>
                         {this.state.player5 && <Text style={styles.textUser}>{this.state.player5.user}</Text>}
                         {this.state.player5 && <Text style={styles.textUser}>{this.state.player5.money}</Text>}
                     </View>
                     <View style={styles.boxPosition}>
-                        <Text style={styles.textPosicion}>6 Lugar</Text>
+                        <Text style={styles.textPosicion}>Top 6</Text>
                         {this.state.player6 && <Text style={styles.textUser}>{this.state.player6.user}</Text>}
                         {this.state.player6 && <Text style={styles.textUser}>{this.state.player6.money}</Text>}
                     </View>
                 </View>
             </ScrollView>
+            </ImageBackground>
         )
     }
 }
@@ -106,16 +112,18 @@ const styles = StyleSheet.create({
     boxPosition: {
         justifyContent: 'center',
         alignItems: 'center',
-        borderColor: '#000',
         width: 300,
-        height: 300,
-        borderWidth: 1
+        height: 200,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        marginTop: 20
     },
     textPosicion: {
         fontSize: 20,
-        margin: 20
+        margin: 20,
+        color: '#fff'
     },
     textUser: {
-        fontSize: 20
+        fontSize: 20,
+        color: '#fff'
     }
 })

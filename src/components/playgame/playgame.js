@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator()
 
-import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, ImageBackground } from 'react-native'
 
 import Parse from '../../config/api'
 import Ranking from '../ranking/ranking'
@@ -501,14 +501,15 @@ class Game extends Component {
 
     render() {
         return (
+            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null}}>
             <ScrollView style={styles.home}>
                 <View style={styles.homeInfos}>
                     {!!this.state.userLog && <Text style={styles.viewHeader}>{this.state.userLog}</Text>}
                     {!!this.state.money && <Text style={styles.viewHeader}>{this.state.money},00 R$</Text>}
                 </View>
                 <View style={styles.questStyle}>
-                    <Text>Você tem {this.state.numberThePlay} perguntas !!</Text>
-                    <Text style={{ fontSize: 20, margin: 10 }}>{this.quests[this.state.idArrayquest[this.state.idQuests]]}</Text>
+                    <Text style={{ color: '#fff'}}>Você tem {this.state.numberThePlay} perguntas !!</Text>
+                    <Text style={{ fontSize: 20, margin: 10, color: '#fff' }}>{this.quests[this.state.idArrayquest[this.state.idQuests]]}</Text>
                    {this.state.playday === true &&  <View style={styles.questStyleButton}>
                         <View style={styles.chooseToView}>
                             {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseDiminPorcentage}>
@@ -535,6 +536,7 @@ class Game extends Component {
                     </View>}
                 </View>
             </ScrollView>
+            </ImageBackground>
         )
     }
 }

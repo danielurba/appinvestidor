@@ -36,7 +36,7 @@ export default class Routes extends Component {
         }
          else {
             return (
-                <Stack.Navigator initialRouteName="Home" screenOptions={{ headerStyle: { backgroundColor: '#248f24' }, headerTintColor: '#fff' }}>
+                <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="Home" component={Home} options={{ title: 'Inicio', headerLeft: null }} />
                     <Stack.Screen name="Register" component={Register} options={{ title: 'Registrar-se' }} />
                     <Stack.Screen name="Login" component={Login} />

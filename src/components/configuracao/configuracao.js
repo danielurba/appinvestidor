@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ImageBackground } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage';
 import RNRestart from 'react-native-restart'
 import { ConfirmDialog } from 'react-native-simple-dialogs';
@@ -98,7 +98,7 @@ export default class Configuration extends Component {
 
     render() {
         return (
-            <View>
+            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null}}>
                 <ConfirmDialog
                     title="Você deseja mesmo excluir a conta ?"
                     message="Diga SIM e Digite a senha para excluir!!"
@@ -136,7 +136,7 @@ export default class Configuration extends Component {
                 <TouchableOpacity style={styles.button} onPress={() => this.setState({ dialogVisibleReset: true })}>
                     <Text style={styles.textButton}>Resetar conta</Text>
                 </TouchableOpacity>
-            </View >
+            </ImageBackground>
         )
     }
 }
