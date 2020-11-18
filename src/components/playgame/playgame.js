@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
 import AsyncStorage from '@react-native-community/async-storage';
 import Ionicons from 'react-native-ionicons'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { NavigationContainer } from '@react-navigation/native'
+import {showMessage, hideMessage} from "react-native-flash-message";
+import FlashMessage from "react-native-flash-message";
+
 
 const Tab = createBottomTabNavigator()
 
-import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, ImageBackground } from 'react-native'
+import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView, ImageBackground, StatusBar } from 'react-native'
 
 import Parse from '../../config/api'
 import Ranking from '../ranking/ranking'
@@ -15,30 +19,34 @@ export default class Playgame extends Component {
 
     render() {
         return (
-            <Tab.Navigator initialRouteName="Game" screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
+            <NavigationContainer>
+                <Tab.Navigator initialRouteName="Game" screenOptions={({ route }) => ({
+                    tabBarIcon: ({ focused, color, size }) => {
+                        let iconName;
 
-                    if (route.name === 'Game') {
-                        iconName = focused
-                            ? 'ios-home'
-                            : 'ios-home';
-                    } else if (route.name === 'Ranking') {
-                        iconName = focused ? 'ios-trophy' : 'ios-trophy';
-                    } else if (route.name === 'Configuration') {
-                        iconName = focused ? 'ios-list-box' : 'ios-list';
-                    }
-                    return <Ionicons name={iconName} size={size} color={color} />;
-                },
-            })}
-                tabBarOptions={{
-                    activeTintColor: 'green',
-                    inactiveTintColor: 'black',
-                }}>
-                <Tab.Screen name="Game" component={Game} />
-                <Tab.Screen name="Ranking" component={Ranking} />
-                <Tab.Screen name="Configuration" component={Configuration} />
-            </Tab.Navigator>
+                        if (route.name === 'Game') {
+                            iconName = focused
+                                ? 'ios-home'
+                                : 'ios-home';
+                        } else if (route.name === 'Ranking') {
+                            iconName = focused ? 'ios-trophy' : 'ios-trophy';
+                        } else if (route.name === 'Configuration') {
+                            iconName = focused ? 'ios-list-box' : 'ios-list';
+                        }
+                        return <Ionicons name={iconName} size={size} color={color} />;
+                    },
+                })}
+                    tabBarOptions={{
+                        activeTintColor: 'white',
+                        inactiveTintColor: 'white',
+                        inactiveBackgroundColor: '#0086ff',
+                        activeBackgroundColor: '#00941e'
+                    }}>
+                    <Tab.Screen name="Game" component={Game} />
+                    <Tab.Screen name="Ranking" component={Ranking} />
+                    <Tab.Screen name="Configuration" component={Configuration} />
+                </Tab.Navigator>
+            </NavigationContainer>
         )
     }
 }
@@ -56,7 +64,9 @@ class Game extends Component {
         idArrayquest: [],
         idQuests: 0,
         numberThePlay: 0,
-        idUserName: null
+        idUserName: null,
+        datelastplay: null,
+        daystoplay: null
     }
 
     // lista com perguntas para o jogo
@@ -90,33 +100,43 @@ class Game extends Component {
             this.setState({ idUserName: idUser })
             if (playday === 'true') {
                 this.setState({ playday: true })
-            } else if(playday === 'false'){
+            } else if (playday === 'false') {
                 this.setState({ playday: false })
             }
         }
         this.getDateToPlay()
         this.setArrayQuest()
     }
-    
+
+    toShowMessage = (msg, type) => {
+        showMessage({
+            message: msg,
+            type: type,
+            style: {bottom: 120},
+            position: 'center',
+            duration: 20000
+        })
+    }
+
     // Função que verifica se a uma lista de perguntas, se tiver seta no state, se não cria uma e seta
     // no Storage e no state, e coloca o numero de perguntas que faltam no state
-    
+
     setArrayQuest = async () => {
-        if(!this.state.playday) {
+        if (!this.state.playday) {
             this.setState({ idArrayquest: [] })
         } else if (this.state.playday) {
             const listTrueShuffle = JSON.parse(await AsyncStorage.getItem('@UserApi:idArray'))
             const listShuffle = this.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-            if(listTrueShuffle === null) {
+            if (listTrueShuffle === null) {
                 await AsyncStorage.multiSet([
                     ['@UserApi:idArray', JSON.stringify(listShuffle)]
                 ])
                 this.setState({ idArrayquest: listShuffle })
                 this.setStorageFunction()
             } else {
-                if(listTrueShuffle.length > 0) {
+                if (listTrueShuffle.length > 0) {
                     this.setState({ idArrayquest: listTrueShuffle })
-                } else if(listTrueShuffle.length == 0) {
+                } else if (listTrueShuffle.length == 0) {
                     await AsyncStorage.multiSet([
                         ['@UserApi:idArray', JSON.stringify(listShuffle)]
                     ])
@@ -135,141 +155,141 @@ class Game extends Component {
 
     selectRandintQuests = (index) => {
         let numberResponseQuest = new Array()
-        if(index === 0) {
+        if (index === 0) {
             numberResponseQuest[0] = this.randintNumber(-60, 30)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-80, 80)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
-                numberResponseQuest[1] = "A Bolsa de valores subiu"
+            if (numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = `A B3 subiu ${numberResponseQuest[0]}% como o volume maior de investimentos é feito por grandes instituições, e muitas delas são estrangeiras, isso é um sinal de que há muito dólar entrando no País fazendo com que a bolsa suba.`
             } else {
-                numberResponseQuest[1] = "A Bolsa de valores desceu"
+                numberResponseQuest[1] = `Você perdeu ${numberResponseQuest[0]}% pois os investidores procuraram vender mais ações do que comprar, com medo que as empresas percam valor em meio ao coronavírus.`
             }
             return numberResponseQuest
-        } else if(index === 1) {
+        } else if (index === 1) {
             numberResponseQuest[0] = this.randintNumber(-30, 60)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-30, 60)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
-                numberResponseQuest[1] = "A Empresa Alimenticia Subiu"
+            if (numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = `Você ganhou ${numberResponseQuest[0]}% a empresa de vocês foi um sucesso, com produtos de qualidade atraíram muitos clientes.`
             } else {
-                numberResponseQuest[1] = "A Empresa Alimenticia Desceu"
+                numberResponseQuest[1] = `As pessoas não puderam fazer mais festas por conta do isolamento social, fazendo com que seu investimento tenha uma queda de ${numberResponseQuest[0]}%.`
             }
             return numberResponseQuest
-        } else if(index === 2) {
+        } else if (index === 2) {
             numberResponseQuest[0] = this.randintNumber(-5, 60)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-5, 60)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
-                numberResponseQuest[1] = "A Magazine recuperou"
+            if (numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = `Com a era digital em constante crescimento e os produtos mais em conta do que nas lojas físicas, as pessoas estão optando pela compra online crescendo as ações ${numberResponseQuest[0]}%.`
             } else {
-                numberResponseQuest[1] = "A Magazine perdeu"
+                numberResponseQuest[1] = `Com a falta de emprego as pessoas estão sem dinheiro para fazer compras sendo assim as ações caem ${numberResponseQuest[0]}%.`
             }
             return numberResponseQuest
-        }else if(index === 3) {
+        } else if (index === 3) {
             numberResponseQuest[0] = this.randintNumber(-50, 50)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-50, 50)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
-                numberResponseQuest[1] = "IRB Brasil ganhou"
+            if (numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = `IRB Brasil anuncia o grande mal-entendido e o megainvestidor Warrem Buffet da uma entrevista que literalmente teria investido na companhia. Então as ações começaram a aumentar de novo ${numberResponseQuest[0]}%.`
             } else {
-                numberResponseQuest[1] = "IRB BRasil perdeu"
+                numberResponseQuest[1] = `Os acionistas continuaram desacreditados, porque tudo indica que tenha sido uma notícia Fake News, e assim as ações dessa empresa continua despencando ${numberResponseQuest[0]}%. `
             }
             return numberResponseQuest
-        }else if(index === 4) {
+        } else if (index === 4) {
             numberResponseQuest[0] = this.randintNumber(-20, 80)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-20, 80)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
-                numberResponseQuest[1] = "A Aviação subiu"
+            if (numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = `Acharam uma utilidade para os aviões parados, a entrega de mercadorias aéreas se torna muito mais rápida e eficiente como por exemplo o mercado livre chega em questões de dias o que as vezes demora semanas ou até mesmo meses. As ações crescem exuberantemente ${numberResponseQuest[0]}%.`
             } else {
-                numberResponseQuest[1] = "A Aviação perdeu"
+                numberResponseQuest[1] = `Os investidores acham que não á necessidade de investir nessa área no momento porque os aviões parados não terão utilidades para eles. Com a maioria tendo esse pensamento as ações não param de despencar ${numberResponseQuest[0]}%.`
             }
             return numberResponseQuest
-        }else if(index === 5) {
+        } else if (index === 5) {
             numberResponseQuest[0] = this.randintNumber(10, 50)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(10, 50)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
-                numberResponseQuest[1] = "O varejo subiu"
+            if (numberResponseQuest[0] > 0) {
+                numberResponseQuest[1] = `A Via Varejo (VVAR3) passou por um processo de estresse pois quem coordenava estava administrando de forma errada e o dono resolveu fazer uma troca de funcionário, que colocou tudo em ordem, assim os funcionários passaram a trabalhar de forma mais eficaz e os produtos chegavam no tempo certo. Parabéns você ganho ${numberResponseQuest[0]}%.`
             } else {
                 numberResponseQuest[1] = "O varejo perdeu"
             }
             return numberResponseQuest
-        }else if(index === 6) {
+        } else if (index === 6) {
             numberResponseQuest[0] = this.randintNumber(-80, 80)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-80, 80)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
+            if (numberResponseQuest[0] > 0) {
                 numberResponseQuest[1] = "A imobiliaria subiu"
             } else {
                 numberResponseQuest[1] = " A imobiliaria desceu"
             }
             return numberResponseQuest
-        }else if(index === 7) {
+        } else if (index === 7) {
             numberResponseQuest[0] = this.randintNumber(-5, 70)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-5, 70)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
+            if (numberResponseQuest[0] > 0) {
                 numberResponseQuest[1] = "Ecorodovias subiu"
             } else {
                 numberResponseQuest[1] = "Ecorodovias desceu"
             }
             return numberResponseQuest
-        }else if(index === 8) {
+        } else if (index === 8) {
             numberResponseQuest[0] = this.randintNumber(-40, 40)
-            while(numberResponseQuest[0] == 0) {
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-40, 40)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
+            if (numberResponseQuest[0] > 0) {
                 numberResponseQuest[1] = "AES Tiete subiu"
             } else {
                 numberResponseQuest[1] = "AES Tiete desceu"
             }
             return numberResponseQuest
-        }else if(index === 9) {
-            numberResponseQuest[0] =  this.randintNumber(-20, 50)
-            while(numberResponseQuest[0] == 0) {
+        } else if (index === 9) {
+            numberResponseQuest[0] = this.randintNumber(-20, 50)
+            while (numberResponseQuest[0] == 0) {
                 numberResponseQuest[0] = this.randintNumber(-20, 50)
-                if(numberResponseQuest[0] != 0) {
+                if (numberResponseQuest[0] != 0) {
                     break
                 }
             }
-            if(numberResponseQuest[0] > 0) {
+            if (numberResponseQuest[0] > 0) {
                 numberResponseQuest[1] = "A crise mundial fez subir"
             } else {
                 numberResponseQuest[1] = "A crise mundial fez cair"
@@ -376,6 +396,8 @@ class Game extends Component {
         return valor
     }
 
+
+
     // função que manda para backend a hora que o jogador terminou as jogadas diarias.
 
     setDateBackend = () => {
@@ -396,25 +418,20 @@ class Game extends Component {
     // pode jogar ou não, se pode jogar entao cria uma nova lista, seta uma lista no backend caso o
     // jogador precise deslogar e logar novamente, ou mostra quantas horas o jogador ainda tem que esperar.
 
-    getDateToPlay = () => {
+    getDateToPlay = async () => {
         if (!this.state.playday) {
-            const Person = Parse.Object.extend("User");
-            const query = new Parse.Query(Person);
-
-            query.get(this.state.idUserName)
-                .then(async (person) => {
-                    const idArray = person.get("datelastplay");
-                    const days = this.verificDateToPlay(idArray)
-                    if (days[0] > 1) {
-                        this.setState({ playday: true })
-                        this.setArrayQuest()
-                        this.setStorageFunction()
-                    } else if (days[0] <= 1) {
-                        Alert.alert('Você ainda tem ' + days[1] + ' para jogar')
-                    }
-                }, (error) => {
-                    alert(error.message);
-                });
+            const constdatelastplay = await AsyncStorage.getItem('@UserApi:datelastplay')
+            const days = this.verificDateToPlay(JSON.parse(constdatelastplay))
+            if (days[0] > 1) {
+                this.setState({ playday: true })
+                this.setArrayQuest()
+                this.setStorageFunction()
+            } else if (days[0] <= 1) {
+                this.setState({ daystoplay: days[1] })
+            }
+            setTimeout(() => {
+                this.getDateToPlay()
+            }, 60000)
         }
     }
 
@@ -447,17 +464,20 @@ class Game extends Component {
     nextQuest = async (direction) => {
         if (direction[0] === undefined) {
             const porcentRandom = this.selectRandintQuests(this.state.idArrayquest[this.state.idQuests])
-            Alert.alert('Vocẽ recusou e ' + porcentRandom[1] + porcentRandom[0] + '%')
+            if(porcentRandom[0] > 0) {
+                this.toShowMessage(porcentRandom[1], 'success')
+            } 
+            if(porcentRandom[0] < 0) {
+                this.toShowMessage(porcentRandom[1], 'danger')
+            }
         }
         if (this.state.idArrayquest.length === 1) {
             this.setDateBackend()
             this.setState({ playday: false })
             await AsyncStorage.multiSet([
-                ['@UserApi:playday', JSON.stringify(false)]
+                ['@UserApi:playday', JSON.stringify(false)],
+                ['@UserApi:datelastplay', JSON.stringify(this.setDate())]
             ])
-        }
-        if (this.state.idArrayquest.length === 0) {
-            return Alert.alert('Vocẽ não tem mais perguntas hoje, volte amanhã !!')
         }
         this.state.idArrayquest.splice(0, 1)
         await AsyncStorage.multiSet([
@@ -470,8 +490,11 @@ class Game extends Component {
         } else {
             this.setState({ idQuests: 0 })
         }
-        if(direction[0]) {
-            Alert.alert(direction[1] + parseInt(direction[0] * 100) + '% das ações')
+        if (direction[0] > 0) {
+            this.toShowMessage(direction[1], 'success')
+        }
+        if(direction[0] < 0) {
+            this.toShowMessage(direction[1], 'danger')
         }
     }
 
@@ -501,41 +524,54 @@ class Game extends Component {
 
     render() {
         return (
-            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null}}>
-            <ScrollView style={styles.home}>
-                <View style={styles.homeInfos}>
-                    {!!this.state.userLog && <Text style={styles.viewHeader}>{this.state.userLog}</Text>}
-                    {!!this.state.money && <Text style={styles.viewHeader}>{this.state.money},00 R$</Text>}
-                </View>
-                <View style={styles.questStyle}>
-                    <Text style={{ color: '#fff'}}>Você tem {this.state.numberThePlay} perguntas !!</Text>
-                    <Text style={{ fontSize: 20, margin: 10, color: '#fff' }}>{this.quests[this.state.idArrayquest[this.state.idQuests]]}</Text>
-                   {this.state.playday === true &&  <View style={styles.questStyleButton}>
-                        <View style={styles.chooseToView}>
-                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseDiminPorcentage}>
-                                <Text style={styles.textButton}>-</Text>
-                            </TouchableOpacity>}
-                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.extractionPorcent}>
-                                <Text style={styles.textButton}>{this.state.porcentUser}%</Text>
-                            </TouchableOpacity>}
-                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseAddPorcentage}>
-                                <Text style={styles.textButton}>+</Text>
-                            </TouchableOpacity>}
+            <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null }}>
+                <StatusBar backgroundColor="transparent" translucent={true} />
+                <ScrollView style={styles.home}>
+                    <View style={styles.homeInfos}>
+                        <View style={styles.homeInfosNameMoney}>
+                            {!!this.state.userLog && <Text style={styles.viewHeader}>{this.state.userLog}</Text>}
                         </View>
-                        <View style={styles.ButtonToChoose}>
-                            {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
-                                <Text style={styles.textButton}>Voltar</Text>
-                            </TouchableOpacity>}
-                            {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
-                                <Text style={styles.textButton}>Sim</Text>
-                            </TouchableOpacity>}
-                            {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.nextQuest}>
-                                <Text style={styles.textButton}>Não</Text>
-                            </TouchableOpacity>}
+                        <View style={styles.homeInfosNameMoney}>
+                            {!!this.state.money && <Text style={styles.viewHeader}>R$ {this.state.money},00</Text>}
                         </View>
-                    </View>}
-                </View>
-            </ScrollView>
+                        <View style={styles.homeInfosOther}>
+                            <View style={styles.homeInfosOtherItens}>
+                                <Text style={styles.textHeader}>Perguntas: {this.state.numberThePlay}</Text>
+                            </View>
+                            <View style={styles.homeInfosOtherItens}>
+                                <Text style={styles.textHeader}>Horas para jogar: {this.state.daystoplay}</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.questStyle}>
+                        <Text style={{ fontSize: 20, margin: 10, color: '#fff' }}>{this.quests[this.state.idArrayquest[this.state.idQuests]]}</Text>
+                        {this.state.playday === true && <View style={styles.questStyleButton}>
+                            <View style={styles.chooseToView}>
+                                {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseDiminPorcentage}>
+                                    <Text style={styles.textButton}>-</Text>
+                                </TouchableOpacity>}
+                                {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.extractionPorcent}>
+                                    <Text style={styles.textButton}>{this.state.porcentUser}%</Text>
+                                </TouchableOpacity>}
+                                {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.chooseAddPorcentage}>
+                                    <Text style={styles.textButton}>+</Text>
+                                </TouchableOpacity>}
+                            </View>
+                            <View style={styles.ButtonToChoose}>
+                                {!!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
+                                    <Text style={styles.textButton}>Voltar</Text>
+                                </TouchableOpacity>}
+                                {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.setButtonQuest}>
+                                    <Text style={styles.textButton}>Sim</Text>
+                                </TouchableOpacity>}
+                                {!this.state.buttonOnOff && <TouchableOpacity style={styles.button} onPress={this.nextQuest}>
+                                    <Text style={styles.textButton}>Não</Text>
+                                </TouchableOpacity>}
+                            </View>
+                        </View>}
+                    </View>
+                </ScrollView>
+                <FlashMessage position="top" />
             </ImageBackground>
         )
     }
@@ -549,18 +585,47 @@ const styles = StyleSheet.create({
     },
     homeInfos: {
         width: '100%',
-        height: 40,
-        backgroundColor: '#444',
+        height: 250,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
         alignItems: 'center',
         justifyContent: 'center',
-        flexDirection: 'row'
+        marginTop: 25
+        // flexDirection: 'row'
+    },
+    homeInfosNameMoney: {
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 350,
+        height: 40,
+        borderRadius: 6,
+        marginBottom: 10
+    },
+    homeInfosOther: {
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 350,
+        height: 120,
+        borderRadius: 6,
+        marginBottom: 10
+    },
+    homeInfosOtherItens: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        height: 40,
+        width: 330,
+        marginVertical: 10,
+        borderRadius: 6,
+        justifyContent: 'center',
+        // alignItems: 'center'
     },
     textHeader: {
         fontSize: 20,
-        color: '#fff'
+        color: '#fff',
+        marginHorizontal: 10
     },
     viewHeader: {
-        marginLeft: 30,
+        // marginLeft: 30,
         fontSize: 24,
         color: '#fff'
     },

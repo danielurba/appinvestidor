@@ -25,8 +25,12 @@ export default class Ranking extends Component {
       }
 
     async componentDidMount() {
-        var Person = Parse.Object.extend("User");
-        var query = new Parse.Query(Person);
+        this.refreshToRanking()
+    }
+
+    refreshToRanking = () => {
+        const Person = Parse.Object.extend("User");
+        const query = new Parse.Query(Person);
 
         query.select('username', 'money')
         query.find()
@@ -49,12 +53,11 @@ export default class Ranking extends Component {
                 this.setState({ player2: this.state.users[1]})
                 this.setState({ player3: this.state.users[2]})
                 this.setState({ player4: this.state.users[3]})
+                this.setState({ player4: this.state.users[4]})
+                this.setState({ player4: this.state.users[5]})
             }, (error) => {
                 alert(error.message);
             });
-        setTimeout(() => {
-            this.componentDidMount()
-        }, 10000)
     }
 
     render() {
@@ -62,7 +65,8 @@ export default class Ranking extends Component {
             <ImageBackground source={require('../../img/backgroundhome.jpg')} style={{ flex: 1, width: null, height: null}}>
             <ScrollView>
                 <View style={styles.body}>
-                    <Text style={styles.textUser}>Ranking</Text>
+                    <Ionicons name="ios-refresh" size={50} color={'#ffffff'} onPress={this.refreshToRanking} style={{margin: 10}}/>
+                    <Text style={styles.textUser}>RANKING</Text>
                     <View style={styles.boxPosition}>
                         <Ionicons name="ios-trophy" size={30} color={'#ffff00'}/>
                         <Text style={styles.textPosicion}>Top 1</Text>
@@ -107,7 +111,8 @@ const styles = StyleSheet.create({
     body: {
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100%'
+        height: '100%',
+        marginTop: 25
     },
     boxPosition: {
         justifyContent: 'center',

@@ -194,6 +194,19 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
+    implementation 'com.facebook.fresco:animated-gif:1.12.0' //instead of
+
+    implementation 'com.facebook.fresco:animated-gif:2.0.0'   //use
+
+    compile 'com.facebook.fresco:fresco:1.+'
+
+    // For animated GIF support
+    compile 'com.facebook.fresco:animated-gif:1.+'
+
+    // For WebP support, including animated WebP
+    compile 'com.facebook.fresco:animated-webp:1.+'
+    compile 'com.facebook.fresco:webpsupport:1.+'
+
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
