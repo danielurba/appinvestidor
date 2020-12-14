@@ -19,6 +19,7 @@
     "react": "16.13.1",
     "react-native": "0.63.2",
     "react-native-dialog-input": "^1.0.8",
+    "react-native-fbsdk": "^3.0.0",
     "react-native-flash-message": "^0.1.17",
     "react-native-gesture-handler": "^1.8.0",
     "react-native-ionicons": "^4.6.5",

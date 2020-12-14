@@ -134,6 +134,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     splits {
         abi {
@@ -193,12 +194,14 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 
     implementation 'com.facebook.fresco:animated-gif:1.12.0' //instead of
 
     implementation 'com.facebook.fresco:animated-gif:2.0.0'   //use
 
     compile 'com.facebook.fresco:fresco:1.+'
+    compile 'com.android.support:multidex:1.0.1'
 
     // For animated GIF support
     compile 'com.facebook.fresco:animated-gif:1.+'

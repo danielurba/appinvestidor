@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">Urbinvestment</string>
+    <string name="app_name">Urbank Investimentos</string>
+    <string name="facebook_app_id">395968978124923</string>
+    <string name="fb_login_protocol_scheme">fb395968978124923</string>
 </resources>

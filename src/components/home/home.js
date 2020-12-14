@@ -4,8 +4,9 @@ import LinearGradient from 'react-native-linear-gradient'
 import AsyncStorage from '@react-native-community/async-storage';
 import RNRestart from 'react-native-restart'
 import Ionicons from 'react-native-ionicons'
-import {showMessage, hideMessage} from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 import FlashMessage from "react-native-flash-message";
+import { LoginButton, AccessToken, GraphRequest, GraphRequestManager } from 'react-native-fbsdk';
 
 import { create } from 'apisauce'
 
@@ -56,16 +57,16 @@ export default class Home extends Component {
         showMessage({
             message: msg,
             type: type,
-            style: {bottom: 250},
+            style: { bottom: 250 },
             position: 'center'
         })
     }
 
     toLogin = async () => {
-        if(!this.state.response.userEmail) {
+        if (!this.state.response.userEmail) {
             return this.toShowMessage('Email/Usuário vazio !', 'danger')
         }
-        if(!this.state.response.password) {
+        if (!this.state.response.password) {
             return this.toShowMessage('Senha esta Vazia !', 'danger')
         }
         Parse.User.logIn(this.state.response.userEmail, this.state.response.password).then((user) => {
@@ -128,13 +129,13 @@ export default class Home extends Component {
     pageRegister = () => {
         if (this.state.register === 'login') {
             this.setState({ register: 'register' })
-            this.setState({ textRegisterLogin: 'Voltar para login'})
-        } else if(this.state.register === 'register') {
+            this.setState({ textRegisterLogin: 'Voltar para login' })
+        } else if (this.state.register === 'register') {
             this.setState({ register: 'login' })
-            this.setState({ textRegisterLogin: 'Não tem conta ? Registre-se'})
-        } else if(this.state.register === 'resetPassword') {
+            this.setState({ textRegisterLogin: 'Não tem conta ? Registre-se' })
+        } else if (this.state.register === 'resetPassword') {
             this.setState({ register: 'login' })
-            this.setState({ textRegisterLogin: 'Não tem conta ? Registre-se'})
+            this.setState({ textRegisterLogin: 'Não tem conta ? Registre-se' })
             this.setState({ resetPassword: false })
         }
     }
@@ -176,8 +177,8 @@ export default class Home extends Component {
 
     toResetPassword = () => {
         this.setState({ resetPassword: true })
-        this.setState({ register: 'resetPassword'})
-        this.setState({ textRegisterLogin: 'Voltar para login'})
+        this.setState({ register: 'resetPassword' })
+        this.setState({ textRegisterLogin: 'Voltar para login' })
     }
 
     toSendEmailResetPassword = () => {
@@ -185,7 +186,7 @@ export default class Home extends Component {
             this.toShowMessage(`Email enviado para ${this.state.response.userEmail}`)
         }).catch((error) => {
             console.log(error)
-        }) 
+        })
     }
 
     render() {
@@ -220,17 +221,39 @@ export default class Home extends Component {
                                 </View>
                                 <TextInput style={styles.inputs} placeholder="E-mail/Usuário..." onChangeText={this.setUserEmail} />
                             </View>}
-                                {!this.state.resetPassword && <View style={styles.inputsIconsContainer}>
-                                    <View style={styles.inputsIcons}>
-                                        <Ionicons name="ios-lock" size={30} color={'#333'} style={{ justifyContent: 'center', alignItems: 'center' }} />
-                                    </View>
-                                    <TextInput secureTextEntry={true} style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
-                                </View>}
+                            {!this.state.resetPassword && <View style={styles.inputsIconsContainer}>
+                                <View style={styles.inputsIcons}>
+                                    <Ionicons name="ios-lock" size={30} color={'#333'} style={{ justifyContent: 'center', alignItems: 'center' }} />
+                                </View>
+                                <TextInput secureTextEntry={true} style={styles.inputs} placeholder="Senha..." onChangeText={this.setPassword} />
+                            </View>}
                             {this.state.register === 'login' && <TouchableOpacity onPress={this.toLogin}>
                                 <LinearGradient colors={['#0086ff', '#0a00bd']} style={styles.buttonHome}>
                                     <Text style={styles.textButton}>Entrar</Text>
                                 </LinearGradient>
                             </TouchableOpacity>}
+                            <LoginButton readPermissions={['public_profile']}d
+                                permissions={["email"]}
+                                onLoginFinished={(error, result) => {
+                                    if (error) {
+                                        alert(error);
+                                        console.log('Login has error: ' + result.error);
+                                    } else if (result.isCancelled) {
+                                        alert('Login is cancelled.');
+                                    } else {
+                                        AccessToken.getCurrentAccessToken().then((data) => {
+                                            console.log(data.accessToken.toString());
+                                            const processRequest = new GraphRequest(
+                                                '/me?fields=name,email,picture.type(large)',
+                                                null,
+                                                (error, result) => {console.log(result)}
+                                            );
+                                            // Start the graph request.
+                                            new GraphRequestManager()
+                                                .addRequest(processRequest).start();
+                                        });
+                                    }
+                                }} />
                             {this.state.register === 'register' && <TouchableOpacity onPress={this.toRegister}>
                                 <LinearGradient colors={['#0086ff', '#0a00bd']} style={styles.buttonHome}>
                                     <Text style={styles.textButton}>Registrar-se</Text>

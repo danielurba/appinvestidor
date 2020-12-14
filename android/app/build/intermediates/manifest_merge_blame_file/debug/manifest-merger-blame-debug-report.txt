@@ -1,0 +1,167 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.grandeinvest"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="16"
+9        android:targetSdkVersion="29" />
+10
+11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+11-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/debug/AndroidManifest.xml:5:5-77
+11-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/debug/AndroidManifest.xml:5:22-75
+12    <uses-permission android:name="android.permission.INTERNET" />
+12-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:4:5-67
+12-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:4:22-64
+13    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+13-->[com.facebook.flipper:flipper:0.37.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/623174cd4892d9fb924ac44b102b25c0/flipper-0.37.0/AndroidManifest.xml:16:5-76
+13-->[com.facebook.flipper:flipper:0.37.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/623174cd4892d9fb924ac44b102b25c0/flipper-0.37.0/AndroidManifest.xml:16:22-73
+14    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
+14-->[com.android.installreferrer:installreferrer:1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/1538fa3b9a3777a9f4036743b84699ea/jetified-installreferrer-1.0/AndroidManifest.xml:9:5-110
+14-->[com.android.installreferrer:installreferrer:1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/1538fa3b9a3777a9f4036743b84699ea/jetified-installreferrer-1.0/AndroidManifest.xml:9:22-107
+15
+16    <application
+16-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:6:5-36:19
+17        android:name="com.grandeinvest.MainApplication"
+17-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:7:7-38
+18        android:allowBackup="false"
+18-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:11:7-34
+19        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+19-->[androidx.core:core:1.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/639e914bfc1efa21e36199d3ff2c5eef/core-1.1.0/AndroidManifest.xml:24:18-86
+20        android:debuggable="true"
+21        android:icon="@drawable/icon"
+21-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:9:7-36
+22        android:label="@string/app_name"
+22-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:8:7-39
+23        android:roundIcon="@drawable/icon"
+23-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:10:7-41
+24        android:supportsRtl="true"
+24-->[com.facebook.android:facebook-android-sdk:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/ecef14570fdd75a4ba35693355741d1b/facebook-android-sdk-7.1.0/AndroidManifest.xml:28:18-44
+25        android:theme="@style/AppTheme"
+25-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:12:7-38
+26        android:usesCleartextTraffic="true" >
+26-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/debug/AndroidManifest.xml:7:18-53
+27        <meta-data
+27-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:13:7-105
+28            android:name="com.facebook.sdk.ApplicationId"
+28-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:13:18-63
+29            android:value="@string/facebook_app_id" />
+29-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:13:64-103
+30
+31        <activity
+31-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:14:7-17:42
+32            android:name="com.facebook.FacebookActivity"
+32-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:15:7-51
+33            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+33-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:16:7-91
+34            android:label="@string/app_name"
+34-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:17:7-39
+35            android:theme="@style/com_facebook_activity_theme" />
+35-->[com.facebook.android:facebook-common:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/c235f9ea59e25ca4c17bf33edf63d8ab/facebook-common-7.1.0/AndroidManifest.xml:33:13-63
+36        <activity
+36-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:18:7-23:94
+37            android:name="com.facebook.CustomTabActivity"
+37-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:18:17-62
+38            android:exported="true" >
+38-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:18:63-86
+39            <intent-filter>
+39-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:19:7-23:82
+40                <action android:name="android.intent.action.VIEW" />
+40-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:20:7-59
+40-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:20:15-56
+41
+42                <category android:name="android.intent.category.DEFAULT" />
+42-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:21:7-66
+42-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:21:17-63
+43                <category android:name="android.intent.category.BROWSABLE" />
+43-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:22:7-68
+43-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:22:17-65
+44
+45                <data android:scheme="@string/fb_login_protocol_scheme" />
+45-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:23:7-65
+45-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:23:13-62
+46            </intent-filter>
+47            <intent-filter>
+47-->[com.facebook.android:facebook-common:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/c235f9ea59e25ca4c17bf33edf63d8ab/facebook-common-7.1.0/AndroidManifest.xml:39:13-48:29
+48                <action android:name="android.intent.action.VIEW" />
+48-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:20:7-59
+48-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:20:15-56
+49
+50                <category android:name="android.intent.category.DEFAULT" />
+50-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:21:7-66
+50-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:21:17-63
+51                <category android:name="android.intent.category.BROWSABLE" />
+51-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:22:7-68
+51-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:22:17-65
+52
+53                <data
+53-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:23:7-65
+54                    android:host="cct.com.grandeinvest"
+55                    android:scheme="fbconnect" />
+55-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:23:13-62
+56            </intent-filter>
+57        </activity>
+58        <activity
+58-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:24:7-34:18
+59            android:name="com.grandeinvest.MainActivity"
+59-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:25:9-37
+60            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+60-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:27:9-86
+61            android:label="@string/app_name"
+61-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:26:9-41
+62            android:launchMode="singleTask"
+62-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:28:9-40
+63            android:windowSoftInputMode="adjustPan|adjustResize" >
+63-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:29:9-61
+64            <intent-filter>
+64-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:30:9-33:25
+65                <action android:name="android.intent.action.MAIN" />
+65-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:31:13-65
+65-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:31:21-62
+66
+67                <category android:name="android.intent.category.LAUNCHER" />
+67-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:32:13-73
+67-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:32:23-70
+68            </intent-filter>
+69        </activity>
+70        <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+70-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:35:7-84
+70-->/home/daniel/Documentos/projetos/appinvestidor/android/app/src/main/AndroidManifest.xml:35:17-81
+71        <activity android:name="com.facebook.CustomTabMainActivity" />
+71-->[com.facebook.android:facebook-common:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/c235f9ea59e25ca4c17bf33edf63d8ab/facebook-common-7.1.0/AndroidManifest.xml:34:9-71
+71-->[com.facebook.android:facebook-common:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/c235f9ea59e25ca4c17bf33edf63d8ab/facebook-common-7.1.0/AndroidManifest.xml:34:19-68
+72        <!--
+73         The initialization ContentProvider will call FacebookSdk.sdkInitialize automatically
+74         with the application context. This config is merged in with the host app's manifest,
+75         but there can only be one provider with the same authority activated at any given
+76         point; so if the end user has two or more different apps that use Facebook SDK, only the
+77         first one will be able to use the provider. To work around this problem, we use the
+78         following placeholder in the authority to identify each host application as if it was
+79         a completely different provider.
+80        -->
+81        <provider
+81-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:39:9-42:40
+82            android:name="com.facebook.internal.FacebookInitProvider"
+82-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:40:13-70
+83            android:authorities="com.grandeinvest.FacebookInitProvider"
+83-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:41:13-72
+84            android:exported="false" />
+84-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:42:13-37
+85
+86        <receiver
+86-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:44:9-50:20
+87            android:name="com.facebook.CurrentAccessTokenExpirationBroadcastReceiver"
+87-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:45:13-86
+88            android:exported="false" >
+88-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:46:13-37
+89            <intent-filter>
+89-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:47:13-49:29
+90                <action android:name="com.facebook.sdk.ACTION_CURRENT_ACCESS_TOKEN_CHANGED" />
+90-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:48:17-95
+90-->[com.facebook.android:facebook-core:7.1.0] /home/daniel/.gradle/caches/transforms-2/files-2.1/e1300f8c09a122f60be010bd266a7f09/jetified-facebook-core-7.1.0/AndroidManifest.xml:48:25-92
+91            </intent-filter>
+92        </receiver>
+93    </application>
+94
+95</manifest>
